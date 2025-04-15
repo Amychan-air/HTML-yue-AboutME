@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifetastic-甜点产品设计 - Tang Yuet Ching</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .header {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/lifetastic-header.jpeg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.6;
+            z-index: 0;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        
+        .description {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background-color: rgba(0,0,0,0.9);
+            transform: translateX(-5px);
+        }
+        
+        .back-btn::before {
+            content: '←';
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        
+        .gallery-item.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .gallery-item:nth-child(odd) {
+            grid-column: span 1;
+        }
+        
+        .gallery-item:nth-child(even) {
+            grid-column: span 1;
+        }
+        
+        .gallery-item:nth-child(5) {
+            grid-column: span 2;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .lightbox-content {
+            position: relative;
+            max-width: 80%;
+            max-height: 80vh;
+        }
+        
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border: 5px solid #fff;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .lightbox.active .lightbox-image {
+            transform: scale(1);
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lightbox-close:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: rotate(90deg);
+        }
+        
+        .lightbox-close::before,
+        .lightbox-close::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 3px;
+            background-color: #fff;
+        }
+        
+        .lightbox-close::before {
+            transform: rotate(45deg);
+        }
+        
+        .lightbox-close::after {
+            transform: rotate(-45deg);
+        }
+        
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            padding: 0 50px;
+            box-sizing: border-box;
+        }
+        
+        .lightbox-nav button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .lightbox-nav button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .lightbox-nav button::before {
+            content: '';
+            width: 15px;
+            height: 15px;
+            border-top: 3px solid #fff;
+            border-left: 3px solid #fff;
+            display: block;
+        }
+        
+        .lightbox-prev::before {
+            transform: rotate(-45deg);
+        }
+        
+        .lightbox-next::before {
+            transform: rotate(135deg);
+        }
+        
+        /* 响应式设计 */
+        @media screen and (max-width: 768px) {
+            .gallery {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .gallery-item:nth-child(n) {
+                grid-column: span 1;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .description {
+                font-size: 1em;
+                padding: 0 20px;
+            }
+            
+            .lightbox-content {
+                max-width: 95%;
+            }
+            
+            .lightbox-nav {
+                padding: 0 20px;
+            }
+            
+            .lightbox-close {
+                top: -30px;
+                right: -10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.location.href='index.html'">返回</button>
+    
+    <header class="header">
+        <div class="header-content">
+            <h1>Lifetastic-甜点产品设计</h1>
+            <div class="description">
+                我为Lifetastic的招牌草莓西瓜蛋糕创作了这组作品，旨在传达其清新甜美的精髓。这项工作利用多种方法，包括摄影和绘画，呈现模特、产品照片、海报甚至漫画。
+            </div>
+        </div>
+    </header>
+    
+    <div class="gallery">
+        <div class="gallery-item">
+            <img src="images/lifetastic-1.jpeg" alt="Lifetastic甜点设计1">
+        </div>
+        <div class="gallery-item">
+            <img src="images/lifetastic-2.jpeg" alt="Lifetastic甜点设计2">
+        </div>
+        <div class="gallery-item">
+            <img src="images/lifetastic-3.jpeg" alt="Lifetastic甜点设计3">
+        </div>
+        <div class="gallery-item">
+            <img src="images/lifetastic-4.jpeg" alt="Lifetastic甜点设计4">
+        </div>
+        <div class="gallery-item">
+            <img src="images/lifetastic-5.jpeg" alt="Lifetastic甜点设计5">
+        </div>
+        <div class="gallery-item">
+            <img src="images/lifetastic-6.jpeg" alt="Lifetastic甜点设计6">
+        </div>
+    </div>
+    
+    <!-- 图片放大灯箱 -->
+    <div class="lightbox">
+        <div class="lightbox-content">
+            <img src="" alt="放大图片" class="lightbox-image">
+            <div class="lightbox-close"></div>
+            <div class="lightbox-nav">
+                <button class="lightbox-prev"></button>
+                <button class="lightbox-next"></button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载完成后执行
+        window.addEventListener('load', function() {
+            // 图片项淡入效果
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            
+            // 检查元素是否在视口中
+            const isInViewport = (element) => {
+                const rect = element.getBoundingClientRect();
+                return (
+                    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.bottom >= 0
+                );
+            };
+            
+            // 初始显示可见元素
+            galleryItems.forEach((item, index) => {
+                setTimeout(() => {
+                    if (isInViewport(item)) {
+                        item.classList.add('visible');
+                    }
+                }, index * 100);
+            });
+            
+            // 滚动时显示元素
+            window.addEventListener('scroll', () => {
+                galleryItems.forEach((item, index) => {
+                    if (isInViewport(item) && !item.classList.contains('visible')) {
+                        setTimeout(() => {
+                            item.classList.add('visible');
+                        }, 100);
+                    }
+                });
+            });
+            
+            // 图片放大功能
+            const lightbox = document.querySelector('.lightbox');
+            const lightboxImg = document.querySelector('.lightbox-image');
+            const lightboxClose = document.querySelector('.lightbox-close');
+            const lightboxPrev = document.querySelector('.lightbox-prev');
+            const lightboxNext = document.querySelector('.lightbox-next');
+            let currentImageIndex = 0;
+            
+            // 打开灯箱
+            galleryItems.forEach((item, index) => {
+                const img = item.querySelector('img');
+                img.addEventListener('click', () => {
+                    currentImageIndex = index;
+                    lightboxImg.src = img.src;
+                    lightbox.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // 禁止滚动
+                });
+            });
+            
+            // 关闭灯箱
+            lightboxClose.addEventListener('click', () => {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // 恢复滚动
+            });
+            
+            // 点击背景关闭
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = ''; // 恢复滚动
+                }
+            });
+            
+            // 上一张图片
+            lightboxPrev.addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentImageIndex = (currentImageIndex - 1 + galleryItems.length) % galleryItems.length;
+                lightboxImg.src = galleryItems[currentImageIndex].querySelector('img').src;
+            });
+            
+            // 下一张图片
+            lightboxNext.addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentImageIndex = (currentImageIndex + 1) % galleryItems.length;
+                lightboxImg.src = galleryItems[currentImageIndex].querySelector('img').src;
+            });
+            
+            // ESC键关闭
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = ''; // 恢复滚动
+                }
+                
+                // 左右箭头键切换图片
+                if (lightbox.classList.contains('active')) {
+                    if (e.key === 'ArrowLeft') {
+                        currentImageIndex = (currentImageIndex - 1 + galleryItems.length) % galleryItems.length;
+                        lightboxImg.src = galleryItems[currentImageIndex].querySelector('img').src;
+                    } else if (e.key === 'ArrowRight') {
+                        currentImageIndex = (currentImageIndex + 1) % galleryItems.length;
+                        lightboxImg.src = galleryItems[currentImageIndex].querySelector('img').src;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
