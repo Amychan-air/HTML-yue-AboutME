@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tang Yuet Ching - Portfolio</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 5000px;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+        }
+
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .hide-loader {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .main-section {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            scroll-snap-align: start;
+        }
+
+        .main-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/back1.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: grayscale(100%);
+            z-index: -1;
+            transform: translateZ(-100px) scale(1.2);
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
+        
+        .overlay-image {
+            position: absolute;
+            top: 3px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0;
+            transform: translateY(30px) translateZ(0);
+            transition: opacity 1s ease, transform 1.2s ease;
+            will-change: transform;
+        }
+        
+        .loaded .overlay-image {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .second-section {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #000;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            scroll-snap-align: start;
+        }
+
+        .second-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
+            z-index: 1;
+            transform: translateZ(-50px);
+        }
+
+        .third-section {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #0a0a0a;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            scroll-snap-align: start;
+            justify-content: center;
+        }
+
+        .third-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/back1.jpeg');
+            background-size: cover;
+            background-position: center;
+            filter: sepia(80%) hue-rotate(180deg) brightness(0.4);
+            z-index: 0;
+            transform: translateZ(-50px);
+            opacity: 0.4;
+        }
+
+        .fourth-section {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #111;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            scroll-snap-align: start;
+            justify-content: center;
+        }
+
+        .fourth-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(50,50,50,0.5), rgba(10,10,10,0.8));
+            z-index: 0;
+            transform: translateZ(-50px);
+        }
+
+        .third-section .content,
+        .fourth-section .content {
+            position: relative;
+            z-index: 2;
+            transform: translateZ(0);
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            background-color: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .third-section h2,
+        .fourth-section h2 {
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .third-section p,
+        .fourth-section p {
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .second-section .content {
+            position: relative;
+            z-index: 2;
+            transform: translateZ(0);
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        /* 添加图片展示区域 */
+        .gallery-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .gallery-item {
+            width: 25%;
+            margin: 0 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 1s ease;
+            cursor: pointer;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .second-section.in-view .gallery-item:nth-child(1) {
+            opacity: 1;
+            transform: scale(1) translateX(-100px);
+            transition-delay: 0.2s;
+        }
+
+        .second-section.in-view .gallery-item:nth-child(2) {
+            opacity: 1;
+            transform: scale(1);
+            transition-delay: 0.4s;
+        }
+
+        .second-section.in-view .gallery-item:nth-child(3) {
+            opacity: 1;
+            transform: scale(1) translateX(100px);
+            transition-delay: 0.6s;
+        }
+
+        .section-title {
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background-color: #fff;
+            transform: translateX(-50%);
+            transition: width 1s ease;
+        }
+
+        .second-section.in-view .section-title::after {
+            width: 100%;
+        }
+
+        .title-container {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease 0.3s, transform 1s ease 0.3s;
+        }
+        
+        .loaded .title-container {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            color: #fff;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 2em;
+            margin-top: 10px;
+        }
+
+        .subtitle {
+            color: #fff;
+            font-size: 2em;
+            margin-top: 10px;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        p {
+            color: #fff;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-size: 1.2em;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s;
+        }
+        
+        .loaded p {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 悬浮菜单样式 */
+        .floating-menu-toggle {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .floating-menu-toggle:hover {
+            background-color: rgba(50, 50, 50, 0.9);
+        }
+
+        .floating-menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background-color: #fff;
+            border-radius: 3px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .floating-menu-toggle span::before,
+        .floating-menu-toggle span::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 3px;
+            background-color: #fff;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .floating-menu-toggle span::before {
+            transform: translateY(-8px);
+        }
+
+        .floating-menu-toggle span::after {
+            transform: translateY(8px);
+        }
+
+        .floating-menu-toggle.active span {
+            background-color: transparent;
+        }
+
+        .floating-menu-toggle.active span::before {
+            transform: rotate(45deg);
+        }
+
+        .floating-menu-toggle.active span::after {
+            transform: rotate(-45deg);
+        }
+
+        .floating-menu {
+            position: fixed;
+            left: -100%;
+            top: 0;
+            width: 33.33%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 99;
+            transition: left 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .floating-menu.active {
+            left: 0;
+        }
+
+        .floating-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .floating-menu li {
+            margin: 20px 0;
+        }
+
+        .floating-menu a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 24px;
+            font-family: 'Playfair Display', serif;
+            display: block;
+            padding: 15px 40px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .floating-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #fff;
+            transform: translateX(10px);
+        }
+
+        /* 联系信息样式 */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .contact-icon i {
+            font-size: 20px;
+            color: #fff;
+        }
+        
+        .contact-text {
+            color: #fff;
+            font-size: 18px;
+        }
+        
+        .contact-text a {
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .contact-text a:hover {
+            border-bottom: 1px solid #fff;
+        }
+
+        /* 图片放大功能 */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 80%;
+            max-height: 80vh;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border: 5px solid #fff;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .lightbox.active .lightbox-image {
+            transform: scale(1);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: rotate(90deg);
+        }
+
+        .lightbox-close::before,
+        .lightbox-close::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 3px;
+            background-color: #fff;
+        }
+
+        .lightbox-close::before {
+            transform: rotate(45deg);
+        }
+
+        .lightbox-close::after {
+            transform: rotate(-45deg);
+        }
+    @media screen and (max-width: 768px) {
+        .floating-menu-toggle {
+            left: -30px;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+    
+    <!-- 悬浮菜单 -->
+    <div class="floating-menu-toggle">
+        <span></span>
+    </div>
+    
+    <div class="floating-menu">
+        <ul>
+            <li><a href="#main-section">首页</a></li>
+            <li><a href="#third-section">作品</a></li>
+            <li><a href="#second-section">关于我</a></li>
+            <li><a href="#fourth-section">联系我</a></li>
+        </ul>
+    </div>
+    
+    <!-- 图片放大灯箱 -->
+    <div class="lightbox">
+        <div class="lightbox-content">
+            <img src="" alt="放大图片" class="lightbox-image">
+            <div class="lightbox-close"></div>
+        </div>
+    </div>
+    
+    <section id="main-section" class="main-section">
+        <img src="images/back1up.png" alt="Overlay Image" class="overlay-image">
+        <div class="content" style="margin-top: 300px;">
+            <div class="title-container">
+                <h1>Welcome to My Portfolio</h1>
+                <div class="subtitle">Tang Yuet Ching</div>
+            </div>
+            <p>探索我的创意世界...</p>
+        </div>
+    </section>
+    <section id="second-section" class="second-section">
+        <div class="content">
+            <div class="section-title">
+                <h2>About Me</h2>
+            </div>
+            <p>我是一名热爱艺术的年轻人，喜欢用创意和想象力创造美丽的作品。</p>
+            
+            <div class="gallery-container">
+                <div class="gallery-item">
+                    <img src="images\project-main-1.jpeg" alt="作品展示1">
+                </div>
+                <div class="gallery-item">
+                    <img src="images\project-main-2.jpeg" alt="作品展示2" >
+                </div>
+                <div class="gallery-item">
+                    <img src="images/project-main-3.jpeg" alt="作品展示3" >
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="third-section" class="third-section">
+        <div class="content">
+            <h2>My Works</h2>
+            <p>展示我的艺术作品和创意设计。</p>
+        </div>
+    </section>
+    <section id="fourth-section" class="fourth-section">
+        <div class="content">
+            <div class="section-title">
+                <h2>Contact Me</h2>
+            </div>
+            <p>联系我获取更多信息。</p>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i>📱</i>
+                    </div>
+                    <div class="contact-text">
+                        +852 92098227
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i>🌐</i>
+                    </div>
+                    <div class="contact-text">
+                        <a href="https://hkdi.edu.hk" target="_blank">hkdi.edu.hk</a>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i>✉️</i>
+                    </div>
+                    <div class="contact-text">
+                        <a href="mailto:yuecheng0912@gmail.com">yuecheng0912@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        window.addEventListener('load', function() {
+            // 隐藏加载动画
+            setTimeout(function() {
+                document.querySelector('.loader-container').classList.add('hide-loader');
+                // 添加loaded类以触发动画
+                setTimeout(function() {
+                    document.body.classList.add('loaded');
+                }, 300);
+            }, 800);
+
+            // 添加滚动视差效果
+            window.addEventListener('scroll', function() {
+                const mainSection = document.querySelector('.main-section');
+                const secondSection = document.querySelector('.second-section');
+                const thirdSection = document.querySelector('.third-section');
+                const fourthSection = document.querySelector('.fourth-section');
+                const overlayImage = document.querySelector('.overlay-image');
+                const scrollPosition = window.scrollY;
+                
+                // 检测section是否在视口中
+                const isInView = (element) => {
+                    const rect = element.getBoundingClientRect();
+                    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                    return (
+                        rect.top <= windowHeight * 0.7 &&
+                        rect.bottom >= windowHeight * 0.3
+                    );
+                };
+                
+                // 第二区域图片扩散效果
+                if (secondSection) {
+                    if (isInView(secondSection)) {
+                        secondSection.classList.add('in-view');
+                    } else {
+                        secondSection.classList.remove('in-view');
+                    }
+                }
+                
+                // 主区域视差效果
+                if (mainSection) {
+                    const mainParallax = scrollPosition * 1;
+                    const backgroundParallax = scrollPosition * 0.3;
+                    
+                    // 背景图片视差效果
+                    const background = mainSection.querySelector('::before');
+                    if (background) {
+                        background.style.transform = `translateZ(-100px) scale(1.2) translateY(${backgroundParallax}px)`;
+                    }
+                    
+                    // Overlay Image视差效果
+                    if (overlayImage) {
+                        overlayImage.style.transform = `translateY(${mainParallax}px) translateZ(0)`;
+                    }
+                }
+
+                // 第三区域视差效果
+                if (thirdSection) {
+                    const thirdBackground = thirdSection.querySelector('::before');
+                    if (thirdBackground) {
+                        const offset = scrollPosition - thirdSection.offsetTop;
+                        if (offset > -window.innerHeight && offset < window.innerHeight) {
+                            thirdBackground.style.transform = `translateZ(-50px) translateY(${offset * 0.2}px)`;
+                        }
+                    }
+                }
+
+                // 第四区域视差效果
+                if (fourthSection) {
+                    const fourthBackground = fourthSection.querySelector('::before');
+                    if (fourthBackground) {
+                        const offset = scrollPosition - fourthSection.offsetTop;
+                        if (offset > -window.innerHeight && offset < window.innerHeight) {
+                            fourthBackground.style.transform = `translateZ(-50px) scale(${1 + offset * 0.0005})`;
+                        }
+                    }
+                }
+            });
+
+            // 添加滚动捕捉功能，确保用户不会停留在两个区域之间
+            let isScrolling = false;
+            let sections = document.querySelectorAll('section');
+            
+            window.addEventListener('wheel', function(e) {
+                if (!isScrolling) {
+                    isScrolling = true;
+                    
+                    const windowHeight = window.innerHeight;
+                    const scrollTop = window.scrollY;
+                    const currentSection = Math.round(scrollTop / windowHeight);
+                    
+                    // 确定滚动方向
+                    let targetSection;
+                    if (e.deltaY > 0) {
+                        // 向下滚动
+                        targetSection = Math.min(sections.length - 1, currentSection + 1);
+                    } else {
+                        // 向上滚动
+                        targetSection = Math.max(0, currentSection - 1);
+                    }
+                    
+                    // 滚动到目标section
+                    window.scrollTo({
+                        top: targetSection * windowHeight,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 防止短时间内多次触发
+                    setTimeout(function() {
+                        isScrolling = false;
+                    }, 800);
+                }
+                
+                // 阻止默认滚动行为
+                e.preventDefault();
+            }, { passive: false });
+
+            // 悬浮菜单功能
+            const menuToggle = document.querySelector('.floating-menu-toggle');
+            const menu = document.querySelector('.floating-menu');
+            
+            menuToggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                menu.classList.toggle('active');
+            });
+            
+            // 菜单项点击后自动关闭菜单
+            const menuItems = document.querySelectorAll('.floating-menu a');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 获取目标section
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    
+                    if (targetSection) {
+                        // 关闭菜单
+                        menuToggle.classList.remove('active');
+                        menu.classList.remove('active');
+                        
+                        // 滚动到目标section
+                        const sectionIndex = Array.from(sections).indexOf(targetSection);
+                        window.scrollTo({
+                            top: sectionIndex * window.innerHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // 添加图片点击放大功能
+            const galleryItems = document.querySelectorAll('.gallery-item img');
+            const lightbox = document.querySelector('.lightbox');
+            const lightboxImg = document.querySelector('.lightbox-image');
+            const lightboxClose = document.querySelector('.lightbox-close');
+            
+            // 点击图片打开灯箱
+            galleryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    lightboxImg.src = this.src;
+                    lightbox.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // 禁止滚动
+                });
+            });
+            
+            // 点击关闭按钮
+            lightboxClose.addEventListener('click', function() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // 恢复滚动
+            });
+            
+            // 点击背景关闭
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = ''; // 恢复滚动
+                }
+            });
+            
+            // ESC键关闭
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = ''; // 恢复滚动
+                }
+            });
+        });
+    </script>
+</body>
+</html>
